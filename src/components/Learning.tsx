@@ -1,10 +1,10 @@
 import { Button, Container, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {ArrowBack, VolumeUp} from "@mui/icons-material"
+import {ArrowBack, ErrorOutline, VolumeUp} from "@mui/icons-material"
 import { translateWords } from "../utils/features";
 import { useDispatch, useSelector } from "react-redux";
-import { getWordsFail, getWordsRequest, getWordsSuccess } from "../redux/slices";
+import { clearState, getWordsFail, getWordsRequest, getWordsSuccess } from "../redux/slices";
 import Loader from "./Loader";
 
 const Learning = () => {
@@ -24,6 +24,11 @@ const Learning = () => {
    translateWords(params)
      .then((arr)  => dispatch(getWordsSuccess(arr)))
      .catch((err) =>  dispatch(getWordsFail(err)));
+    
+     if(error){
+       alert(error);
+       dispatch(clearState());
+     }
   },[])
 
   if(loading) return <Loader/>;
@@ -52,8 +57,8 @@ const Learning = () => {
 
       <Button sx={{
         margin:"3rem 0",
-      }} variant="contained" fullWidth onClick={count===7 ? () => navigate("/quiz"):nextHandler}>
-       {count===7 ? "Test" : "Next"}
+      }} variant="contained" fullWidth onClick={count === words.length-1 ? () => navigate("/quiz"):nextHandler}>
+       {count === words.length-1 ? "Test" : "Next"}
       </Button>
     </Container>
   )

@@ -1,5 +1,25 @@
 import axios from "axios";
 import { generate } from "random-words";
+import _ from 'lodash';
+
+const generateMcq = (meaning:{
+  text:string;
+}[],idx:number):string[] => {
+  
+  const correctAns:string = meaning[idx].text;
+ 
+  //An array with all words except for correct ans.
+  const allMeaningExceptForCorrect = meaning.filter(
+    (i) => i.text !== correctAns
+  )
+ 
+  //randomly generating three elements from incorrectArray
+  const incorrectOptions:string[] = _.sampleSize(allMeaningExceptForCorrect,3).map((i) => i.text);
+
+  const mcqOptions = _.shuffle([...incorrectOptions,correctAns]);
+   
+  return mcqOptions;
+}
 
 export const translateWords = async (lang: LangType):Promise<WordType[]> => {
   try {
@@ -28,10 +48,12 @@ export const translateWords = async (lang: LangType):Promise<WordType[]> => {
     const received:FetchedDataType[] = response.data;
 
     const arr:WordType[] = received.map((i,idx) => {
+      const options : string[] = generateMcq(words,idx);
+
         return{
             word:i.translations[0].text,
             meaning:words[idx].text,
-            options:["asd"]
+            options,
         }
     })
     return arr;
@@ -41,3 +63,21 @@ export const translateWords = async (lang: LangType):Promise<WordType[]> => {
     throw new Error("Some Error");
   }
 };
+
+//count matching
+export const countMatchingElements = (arr1:string[],arr2:string[]):number => {
+  
+  if(arr1.length!==arr2.length){
+    throw new Error("Arrays are not equal");
+  }
+
+  let matchedCount = 0;
+
+  for(let i=0;i<arr1.length;i++){
+    if(arr1[i]===arr2[i]){
+      matchedCount++;
+    }
+  }
+
+  return matchedCount;
+}
